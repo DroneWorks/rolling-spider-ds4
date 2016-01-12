@@ -48,7 +48,7 @@ rollingSpider.connect(() => {
 
         setInterval(() => {
             rollingSpider.drive(commands, -1);
-        }, 100);
+        }, 25);
         console.log('driving...');
     });
 });
