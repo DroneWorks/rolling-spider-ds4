@@ -1,7 +1,8 @@
 'use strict';
 
 const dualShock     = require('dualshock-controller'),
-      RollingSpider = require("rolling-spider");
+      RollingSpider = require("rolling-spider"),
+      _             = require('lodash');
 
 const scale = (input, sign=1) => input <= 5 ? 0 : sign * Math.round(input / 255 * 200 - 100);
 
@@ -20,6 +21,8 @@ let commands = {
     up: 0
 };
 
+let drive = _.throttle(rollingSpider.drive.bind(rollingSpider), 50);
+
 rollingSpider.connect(() => {
     rollingSpider.setup(() => {
         rollingSpider.wheelOff();
@@ -31,10 +34,12 @@ rollingSpider.connect(() => {
         controller.on('left:move', ({ x, y }) => {
             commands.turn = scale(x);
             commands.up = scale(y, -1);
+            drive(commands, -1);
         });
         controller.on('right:move', ({ x, y }) => {
             commands.tilt = scale(x);
             commands.forward = scale(y, -1);
+            drive(commands, -1);
         });
 
         //controller.on('square:press', console.log);
@@ -46,9 +51,6 @@ rollingSpider.connect(() => {
             rollingSpider.emergency();
         });
 
-        setInterval(() => {
-            rollingSpider.drive(commands, -1);
-        }, 25);
         console.log('driving...');
     });
 });
